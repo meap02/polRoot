@@ -46,5 +46,11 @@ public interface rooterInterface {
 	 */
 	public float f(float x);
 	
-	
+	/**
+	 * This method will evaluate a given x value
+	 * within this functions derivative. 
+	 * @param x
+	 * @return
+	 */
+	public float df(float x);
 }
