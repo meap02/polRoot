@@ -1,5 +1,5 @@
 
-public interface rooterInterface {
+public interface RooterInterface {
 	
 	
 	/**
@@ -13,7 +13,9 @@ public interface rooterInterface {
 	 * The root located between a and b if it exists. If it does not
 	 * or the max iterations is reached, this will throw an exception.
 	 */
-	public float bisect(float a, float b)throws RootDoesNotExistException;
+	public float bisect(float a, float b)throws RootProblemException;
+	
+	public float bisect(float a, float b, int max)throws RootProblemException;
 	
 	/**
 	 * This method will use Newton's method to find the root 
@@ -24,8 +26,10 @@ public interface rooterInterface {
 	 * The root nearest a if it exists. If it does not exist
 	 * or the max iterations is reached, this will throw an exception.
 	 */
-	public float newton(float a)throws RootDoesNotExistException;
+	public float newton(float a)throws RootProblemException;
 	
+	public float newton(float a, int max)throws RootProblemException;
+
 	/**
 	 * This method will use the secant method to solve for a root of the equation
 	 * @param a
@@ -36,7 +40,20 @@ public interface rooterInterface {
 	 * The root in between a and b if it exists. If it does not exist
 	 * or the max iterations is reached, this will throw an exception.
 	 */
-	public float secant(float a, float b)throws RootDoesNotExistException;
+	public float secant(float a, float b)throws RootProblemException;
+
+	public float secant(float a, float b, int max)throws RootProblemException;
+
+	/**
+	 * This method will use a combination of 
+	 * @param a
+	 * @param b
+	 * @return
+	 * @throws RootDoesNotExistException
+	 */
+	public float hybrid(float a, float b)throws RootProblemException;
+
+	public float hybrid(float a, float b, int max)throws RootProblemException;
 
 	/**
 	 * This method will evaluate a given x value
