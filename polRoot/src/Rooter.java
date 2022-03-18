@@ -94,14 +94,14 @@ public class Rooter implements RooterInterface {
 
 	public List<Object> newton(float x0 ,int max) {
 		List<Object> record = new ArrayList<Object>(3);
-		int iterations = 0;
-		float a;//this will be f(x) for each iteration
-		float b;//this will be derivative of f(x) for each iteration
-		if(Math.abs(f(x0)) < 0.00001) { //This is delta
+		if(Math.abs(df(x0)) < 0.00001) { //This is delta
 			record.add(null);
 			record.add(null);
 			record.add("fail");
 		}else {
+			int iterations = 0;
+			float a;//this will be f(x) for each iteration
+			float b;//this will be derivative of f(x) for each iteration
 			while(Math.abs((a = f(x0))) >= Float.MIN_VALUE) {//this is epsilon
 				if(iterations >= max) {
 					record.add(x0);
