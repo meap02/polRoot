@@ -6,8 +6,7 @@ import java.io.FileWriter;
 public class polRoot {
 	public static void main(String[] args) {
 		
-		RooterInterface poly;
-
+		RooterInterface poly;//The object interface that we will be using
 		/*
 		 * This switch statement will take care of the main
 		 * methods that will need to be run
@@ -89,7 +88,8 @@ public class polRoot {
 				System.out.println("An unknown error has occured: " + e.getMessage());
 			}
 			break;
-		default:
+		///////////////////////////////////////////////////////////////////////////////////////////////////
+		default://bisection
 			try {
 				if(args[0].equals("-maxIt")) {
 					poly = new Rooter(args[4]);
