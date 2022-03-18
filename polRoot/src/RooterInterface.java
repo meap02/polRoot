@@ -1,3 +1,4 @@
+import java.util.List;
 
 public interface RooterInterface {
 	
@@ -13,9 +14,9 @@ public interface RooterInterface {
 	 * The root located between a and b if it exists. If it does not
 	 * or the max iterations is reached, this will throw an exception.
 	 */
-	public float bisect(float a, float b)throws RootProblemException;
+	public List<Object> bisect(float a, float b);
 	
-	public float bisect(float a, float b, int max)throws RootProblemException;
+	public List<Object> bisect(float a, float b, int max);
 	
 	/**
 	 * This method will use Newton's method to find the root 
@@ -26,9 +27,9 @@ public interface RooterInterface {
 	 * The root nearest a if it exists. If it does not exist
 	 * or the max iterations is reached, this will throw an exception.
 	 */
-	public float newton(float a)throws RootProblemException;
+	public List<Object> newton(float a);
 	
-	public float newton(float a, int max)throws RootProblemException;
+	public List<Object> newton(float a, int max);
 
 	/**
 	 * This method will use the secant method to solve for a root of the equation
@@ -40,9 +41,9 @@ public interface RooterInterface {
 	 * The root in between a and b if it exists. If it does not exist
 	 * or the max iterations is reached, this will throw an exception.
 	 */
-	public float secant(float a, float b)throws RootProblemException;
+	public List<Object> secant(float a, float b);
 
-	public float secant(float a, float b, int max)throws RootProblemException;
+	public List<Object> secant(float a, float b, int max);
 
 	/**
 	 * This method will use a combination of 
@@ -51,9 +52,9 @@ public interface RooterInterface {
 	 * @return
 	 * @throws RootDoesNotExistException
 	 */
-	public float hybrid(float a, float b)throws RootProblemException;
+	public List<Object> hybrid(float a, float b);
 
-	public float hybrid(float a, float b, int max)throws RootProblemException;
+	public List<Object> hybrid(float a, float b, int max);
 
 	/**
 	 * This method will evaluate a given x value
@@ -70,4 +71,14 @@ public interface RooterInterface {
 	 * @return
 	 */
 	public float df(float x);
+	
+	/**
+	 * Used to get the file name for writing purposes
+	 * @return Name of the file read when initialized
+	 */
+	public String getName();
+	/**
+	 * Used to get the iterations that a method took after a single method has run. Will reset when new method is run
+	 * @return Number of iterations taken
+	 */
 }

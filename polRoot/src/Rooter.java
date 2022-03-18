@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,7 +12,6 @@ public class Rooter implements RooterInterface {
 	private int[] powers;
 	private float[] dpoly;
 	private int[] dpowers;
-	private int iterations;
 	private final int MAX_ITERATIONS = 10000;
 	
 	public Rooter(float[] array) {
@@ -41,18 +41,24 @@ public class Rooter implements RooterInterface {
 		for(int i = 0; i < polystr.length; i++)
 			poly[i] = Float.valueOf(polystr[i]);
 	}
-
-	public float bisect(float a, float b, int max) throws RootProblemException {
+	
+	//List to be formatted [root, iterations, outcome]
+	public List<Object> bisect(float a, float b, int max){
+		List<Object> record = new ArrayList<Object>(3);
 		if((f(a)*f(b))<0) {
-			iterations = 0;
+			int iterations = 0;
 			boolean lneg = false;
 			if(f(a)<0)
 				lneg = true;
 			float c = (a+b)/2;
 			//This is where the loop will begin
 			while(Math.abs(f(c)) >= Float.MIN_VALUE) {
-				if(iterations >= max)
-					throw new RootDoesNotConvergeException(c);
+				if(iterations >= max) {
+					record.add(c);
+					record.add(iterations);
+					record.add("fail");
+					return record;
+				}
 				c=(a+b)/2;
 				if(f(c) < 0)
 					if(lneg)
@@ -65,88 +71,115 @@ public class Rooter implements RooterInterface {
 					a=c;
 				iterations++;
 			}
-			return c;
-		}else
-			throw new RootProblemException("A single root does not exist within the bounds " + 
-												 a + " and " + b);
+			record.add(0, c);
+			record.add(1, iterations);
+			record.add(2, "success");
+		}else {
+			 record.add(null);
+			 record.add(null);
+			 record.add("fail");
+		}
+		return record;
 	}
 	
-	public float bisect(float a, float b) throws RootProblemException {
+	//List to be formatted [root, iterations, outcome]
+	public List<Object> bisect(float a, float b){
 		return bisect(a, b, MAX_ITERATIONS);
 	}
 
-	public float newton(float x0 ,int max) throws RootProblemException {
-		iterations = 0;
+	public List<Object> newton(float x0 ,int max) {
+		List<Object> record = new ArrayList<Object>(3);
+		int iterations = 0;
 		float a;
 		float b;
-		if(Math.abs(f(x0)) < 0.00001)//This is delta
-			throw new RootProblemException("The slope at " + x0 + " is too small to use this method");
-		while(Math.abs((a = f(x0))) >= Float.MIN_VALUE) {
-			if(iterations >= max)
-				throw new RootDoesNotConvergeException(x0);
-			b = df(x0);
-			x0=(b*x0-a)/b;
-			iterations++;
+		if(Math.abs(f(x0)) < 0.00001) { //This is delta
+			record.add(null);
+			record.add(null);
+			record.add("fail");
+		}else {
+			while(Math.abs((a = f(x0))) >= Float.MIN_VALUE) {
+				if(iterations >= max) {
+					record.add(x0);
+					record.add(iterations);
+					record.add("fail");
+					return record;
+				}
+				b = df(x0);
+				x0=(b*x0-a)/b;
+				iterations++;
+			}
+			record.add(x0);
+			record.add(iterations);
+			record.add("success");
 		}
-		return x0;
+		return record;
 	}
 	
-	public float newton(float x0) throws RootProblemException {
+	public List<Object> newton(float x0) {
 		return newton(x0, MAX_ITERATIONS);
 	}
 
-	public float secant(float x0, float x1, int max) throws RootProblemException {
-		iterations = 0;
-		float x2 =x1 - (f(x1)/((f(x1) - f(x0))/(x1-x0)));
-		while(Math.abs(f(x2))>Float.MIN_VALUE) {
-			if(iterations > max)
-					throw new RootDoesNotConvergeException(x2);
-			if(x0 == x1)//This will ensure that f(x1) - f(x0) will not be 0 and cause a NaN error
-				break;
-			x2 =x1 - (f(x1)/((f(x1) - f(x0))/(x1-x0)));
-			x0 = x1;
-			x1 = x2;
-			iterations++;
+	public List<Object> secant(float x0, float x1, int max) {
+		List<Object> record = new ArrayList<Object>(3);
+		if(x0 == x1) {
+			record.add(null);
+			record.add(null);
+			record.add("fail");
 		}
-		return x2;
+		else {
+			int iterations = 0;
+			float x2 =x1 - (f(x1)/((f(x1) - f(x0))/(x1-x0)));
+			while(Math.abs(f(x2))>Float.MIN_VALUE) {
+				if(iterations >= max) {
+					record.add(x0);
+					record.add(iterations);
+					record.add("fail");
+					return record;
+				}
+				if(x0 == x1) //This will ensure that f(x1) - f(x0) will not be 0 and cause a NaN error
+					break;
+				x2 =x1 - (f(x1)/((f(x1) - f(x0))/(x1-x0)));
+				x0 = x1;
+				x1 = x2;
+				iterations++;
+			}
+			record.add(x2);
+			record.add(iterations);
+			record.add("success");
+		}
+		return record;
 	}
 	
-	public float secant(float x0, float x1) throws RootProblemException {
+	public List<Object> secant(float x0, float x1) {
 		return secant(x0, x1, MAX_ITERATIONS);
 	}
 	
-	public float hybrid(float a, float b) throws RootProblemException {
-		float c;
-		try {
-			c = bisect(a,b,6);
-		}catch(RootDoesNotConvergeException e){
-			c = e.getEstimate();
+	//List to be formatted [root, iterations, outcome]
+	public List<Object> hybrid(float a, float b) {
+		List<Object> record = new ArrayList<Object>(3);
+		List<Object> record2 = new ArrayList<Object>(3);
+
+		record = bisect(a,b,6);
+		if(record.get(0) != null) {
+			record2 = newton((float)record.get(0), MAX_ITERATIONS - 6);
+			record.set(0, (float)record2.get(0));
+			record.set(1, (int)record.get(1) + (int)record2.get(1));
+			record.set(2, (String)record2.get(2));
 		}
-		int conIter = iterations;
-		try {
-			c = newton(c, MAX_ITERATIONS - 6);
-		} catch (RootDoesNotConvergeException e) {
-			c = e.getEstimate();
-		}
-		iterations += conIter;
-		return c;
+		return record;
 	}
 	
-	public float hybrid(float a, float b, int max) throws RootProblemException {
-		float c;
-		try {
-			c = bisect(a,b,max/3);
-		}catch(RootDoesNotConvergeException e){
-			c = e.getEstimate();
-		}
-		int conIter = iterations;
-		try {
-			c = newton(c, max-max/3);
-		} catch (RootDoesNotConvergeException e) {
-			c = e.getEstimate();
-		}
-		iterations += conIter;
-		return c;
+	public List<Object> hybrid(float a, float b, int max) {
+		List<Object> record = new ArrayList<Object>(3);
+		List<Object> record2 = new ArrayList<Object>(3);
+
+		record = bisect(a,b,max/3);
+		record2 = newton((float)record.get(0), max-max/3);
+		
+		record.set(0, (float)record2.get(0));
+		record.set(1, (int)record.get(1) + (int)record2.get(1));
+		record.set(2, (String)record2.get(2));
+		return record;
 	}
 
 
@@ -167,15 +200,15 @@ public class Rooter implements RooterInterface {
 		}
 		return temp;
 	}
-	
-	public int getIterations() {
-		return iterations;
-	}
 
 	private void getDerivative(){
 		this.dpoly = new float[poly.length - 1];
 		for(int i = 0; i < dpoly.length; i++)
 			dpoly[i] = poly[i]*powers[i];
 		this.dpowers = Arrays.copyOfRange(powers, 1, powers.length);
+	}
+
+	public String getName() {
+		return name;
 	}
 }//END OF CLASS
